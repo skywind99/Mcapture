@@ -1,0 +1,22 @@
+{
+  "name": "screen-ocr",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.0.0"
+  },
+  "dependencies": {
+    "tesseract.js": "^5.0.0"
+  },
+  "build": {
+    "appId": "com.school.screenocr",
+    "win": {
+      "target": "nsis"
+    }
+  }
+}
