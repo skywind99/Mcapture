@@ -28,6 +28,9 @@ if tesseract_path:
     pytesseract.pytesseract.tesseract_cmd = tesseract_path
 else:
     print("❌ Tesseract를 찾을 수 없습니다!")
+    print("Tesseract OCR을 먼저 설치해주세요:")
+    print("https://github.com/UB-Mannheim/tesseract/wiki")
+    input("\n아무 키나 눌러 종료...")
     sys.exit(1)
 
 class ScreenOCR:
@@ -114,8 +117,10 @@ class ScreenOCR:
             if abs(x2 - x1) < 10 or abs(y2 - y1) < 10:
                 return
             
+            print("\n📸 화면 캡처 중...")
             screenshot = ImageGrab.grab(bbox=(x1, y1, x2, y2))
             
+            print("🔍 텍스트 인식 중...")
             text = pytesseract.image_to_string(
                 screenshot, 
                 lang='kor+eng',
@@ -126,13 +131,14 @@ class ScreenOCR:
             
             if text:
                 pyperclip.copy(text)
-                print("=" * 50)
+                print("=" * 60)
                 print("✅ 텍스트 인식 완료! 클립보드에 복사되었습니다.")
-                print("=" * 50)
+                print("=" * 60)
                 print(text)
-                print("=" * 50)
+                print("=" * 60)
             else:
                 print("⚠️ 텍스트를 인식하지 못했습니다.")
+                print("💡 힌트: 글자가 선명한 영역을 선택해보세요.")
                 
         except Exception as e:
             print(f"❌ 오류 발생: {e}")
@@ -142,6 +148,7 @@ def on_activate():
     print("\n🔍 OCR 영역 선택 모드 시작...")
     ocr = ScreenOCR()
     ocr.capture_and_ocr()
+    print("\n대기 중... (Ctrl+Shift+C: OCR 시작, Ctrl+Shift+Q: 종료)")
 
 def on_exit():
     """프로그램 종료"""
@@ -152,16 +159,23 @@ def main():
     print("=" * 60)
     print("🚀 화면 OCR 프로그램 시작!")
     print("=" * 60)
-    print("📌 단축키: Ctrl + Shift + C  →  영역 선택 후 텍스트 인식")
-    print("📌 종료: Ctrl + Shift + Q")
+    print("📌 단축키:")
+    print("   Ctrl + Shift + C  →  영역 선택 후 텍스트 인식")
+    print("   Ctrl + Shift + Q  →  프로그램 종료")
     print("=" * 60)
-    print("\n대기 중...")
+    print(f"✅ Tesseract 경로: {tesseract_path}")
+    print("=" * 60)
+    print("\n대기 중... (Ctrl+Shift+C를 눌러 시작하세요)")
     
-    with keyboard.GlobalHotKeys({
-            '<ctrl>+<shift>+c': on_activate,
-            '<ctrl>+<shift>+q': on_exit
-        }) as h:
-        h.join()
+    try:
+        with keyboard.GlobalHotKeys({
+                '<ctrl>+<shift>+c': on_activate,
+                '<ctrl>+<shift>+q': on_exit
+            }) as h:
+            h.join()
+    except Exception as e:
+        print(f"\n❌ 오류 발생: {e}")
+        input("\n아무 키나 눌러 종료...")
 
 if __name__ == "__main__":
     main()
