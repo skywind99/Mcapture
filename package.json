@@ -1,22 +1,49 @@
 {
   "name": "screen-ocr",
   "version": "1.0.0",
+  "description": "화면 OCR 프로그램",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder"
+    "build": "electron-builder",
+    "build:win": "electron-builder --win"
   },
+  "keywords": ["ocr", "screen", "capture"],
+  "author": "한국애니메이션고등학교",
+  "license": "MIT",
   "devDependencies": {
-    "electron": "^27.0.0",
-    "electron-builder": "^24.0.0"
+    "electron": "^27.1.0",
+    "electron-builder": "^24.9.1"
   },
   "dependencies": {
-    "tesseract.js": "^5.0.0"
+    "tesseract.js": "^5.0.3",
+    "electron-localshortcut": "^3.2.1"
   },
   "build": {
-    "appId": "com.school.screenocr",
+    "appId": "com.kahs.screenocr",
+    "productName": "화면OCR",
     "win": {
-      "target": "nsis"
-    }
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "화면OCR",
+      "installerLanguages": ["ko_KR"],
+      "language": "2066"
+    },
+    "files": [
+      "**/*",
+      "!**/*.ts",
+      "!*.md"
+    ]
   }
 }
