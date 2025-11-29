@@ -1,0 +1,82 @@
+name: Build Python OCR Installer
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyautogui pytesseract pillow pyperclip pynput pyinstaller
+    
+    - name: Download and Install Tesseract
+      run: |
+        curl -L https://digi.bib.uni-mannheim.de/tesseract/tesseract-ocr-w64-setup-5.3.3.20231005.exe -o tesseract-installer.exe
+        Start-Process -Wait -FilePath "tesseract-installer.exe" -ArgumentList "/S", "/D=C:\Tesseract-OCR"
+        
+    - name: Download Korean language data
+      run: |
+        curl -L https://github.com/tesseract-ocr/tessdata/raw/main/kor.traineddata -o C:\Tesseract-OCR\tessdata\kor.traineddata
+    
+    - name: Build exe with PyInstaller
+      run: |
+        pyinstaller screen_ocr.spec
+    
+    - name: Copy Tesseract to dist
+      run: |
+        xcopy "C:\Tesseract-OCR" "tesseract\" /E /I /Y
+    
+    - name: Install Inno Setup
+      run: |
+        choco install innosetup -y
+    
+    - name: Build installer
+      run: |
+        & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
+    
+    - name: Upload installer
+      uses: actions/upload-artifact@v3
+      with:
+        name: python-ocr-installer
+        path: Output/화면OCR_설치프로그램.exe
+    
+    - name: Create Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: Output/화면OCR_설치프로그램.exe
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+---
+
+# 방법 2: Electron
+
+## 2-1. 프로젝트 구조
+```
+screen-ocr-electron/
+├── package.json
+├── main.js
+├── preload.js
+├── renderer.js
+├── index.html
+├── styles.css
+└── .github/
+    └── workflows/
+        └── build-electron.yml
